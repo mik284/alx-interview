@@ -1,37 +1,49 @@
-#!/usr/bin/python3
-"""challenge of placing N non-attacking queens on an NN chessboard"""
 import sys
 
+def print_board(board):
+    for row in board:
+        print(" ".join(row))
+    print("")
 
-def nonAttack(brd, ln, i):
-    '''checks a place is not attacked by queens'''
-    for j in range(ln):
-        if(brd[j] == i or brd[j] + ln - j == i or brd[j] + j - ln == i):
+def is_valid(board, row, col, n):
+    for i in range(col):
+        if board[row][i] == "Q":
             return False
+
+    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+        if board[i][j] == "Q":
+            return False
+
+    for i, j in zip(range(row, n, 1), range(col, -1, -1)):
+        if board[i][j] == "Q":
+            return False
+
     return True
 
+def solve(board, col, n):
+    if col == n:
+        print_board(board)
+        return
 
-def fillBoard(brd, ln):
-    '''finds the next safe posn to land the queen'''
-    for i in range(len(brd)):
-        if nonAttack(brd, ln, i):
-            brd[ln] = i
-            if ln < len(brd) - 1:
-                fillBoard(brd, ln + 1)
-            else:
-                print([[i, brd[i]] for i in range(len(brd))])
-
+    for i in range(n):
+        if is_valid(board, i, col, n):
+            board[i][col] = "Q"
+            solve(board, col + 1, n)
+            board[i][col] = "."
 
 if len(sys.argv) != 2:
     print("Usage: nqueens N")
     sys.exit(1)
+
 try:
     n = int(sys.argv[1])
-except Exception:
+except ValueError:
     print("N must be a number")
     sys.exit(1)
+
 if n < 4:
     print("N must be at least 4")
     sys.exit(1)
-brd = [-1 for i in range(n)]
-fillBoard(brd, 0)
+
+board = [["." for _ in range(n)] for _ in range(n)]
+solve(board, 0, n)
