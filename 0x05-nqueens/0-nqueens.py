@@ -1,37 +1,61 @@
 #!/usr/bin/python3
-"""challenge of placing N non-attacking queens on an NN chessboard"""
+"""Solution to the N-Queens puzzle"""
 import sys
 
 
-def nonAttack(brd, ln, i):
-    '''checks a place is not attacked by queens'''
-    for j in range(ln):
-        if(brd[j] == i or brd[j] + ln - j == i or brd[j] + j - ln == i):
-            return False
-    return True
+def print_board(board, n):
+    """prints allocated possitions to the queen"""
+    b = []
+
+    for i in range(n):
+        for j in range(n):
+            if j == board[i]:
+                b.append([i, j])
+    print(b)
 
 
-def fillBoard(brd, ln):
-    '''finds the next safe posn to land the queen'''
-    for i in range(len(brd)):
-        if nonAttack(brd, ln, i):
-            brd[ln] = i
-            if ln < len(brd) - 1:
-                fillBoard(brd, ln + 1)
-            else:
-                print([[i, brd[i]] for i in range(len(brd))])
+def safe_position(board, i, j, r):
+    """Determines whether the position is safe for the queen"""
+    if (board[i] == j) or (board[i] == j - i + r) or (board[i] == i - r + j):
+        return True
+    return False
+
+
+def determine_positions(board, row, n):
+    """Recursively finds all safe positions where the queen can be allocated"""
+    if row == n:
+        print_board(board, n)
+
+    else:
+        for j in range(n):
+            allowed = True
+            for i in range(row):
+                if safe_position(board, i, j, row):
+                    allowed = False
+            if allowed:
+                board[row] = j
+                determine_positions(board, row + 1, n)
+
+
+def create_board(size):
+    """Generates the board"""
+    return [0 * size for i in range(size)]
 
 
 if len(sys.argv) != 2:
     print("Usage: nqueens N")
-    sys.exit(1)
+    exit(1)
+
 try:
     n = int(sys.argv[1])
-except Exception:
+except BaseException:
     print("N must be a number")
-    sys.exit(1)
-if n < 4:
+    exit(1)
+
+if (n < 4):
     print("N must be at least 4")
-    sys.exit(1)
-brd = [-1 for i in range(n)]
-fillBoard(brd, 0)
+    exit(1)
+
+board = create_board(int(n))
+row = 0
+determine_positions(board, row, int(n))
